@@ -1,21 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using WpfTestTask.Models;
-using WpfTestTask.Services;
 using WpfTestTask.Workers;
 
 namespace WpfTestTask
@@ -30,9 +18,7 @@ namespace WpfTestTask
 		private bool _isListChanged;
 
 		private bool _isCellChangingStarted;
-
-		private bool _isReading;
-
+		
 		public ViewModel ViewModel
 		{
 			get { return _viewModel; }
@@ -50,7 +36,29 @@ namespace WpfTestTask
 			_viewModel.BindingList.RaiseListChangedEvents = true;
 			_viewModel.BindingList.ListChanged += ListChanged;
 
-			Task.Run((() =>
+			RunBackgroundWorker();
+		}
+		
+		private void ListChanged(object sender, ListChangedEventArgs e)
+		{
+			_isCellChangingStarted = false;
+			_isListChanged = true;
+		}
+
+		private void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
+		{
+			_isCellChangingStarted = false;
+			_isListChanged = true;
+		}
+
+		private void CellChangingStarted(object sender, DataGridPreparingCellForEditEventArgs dataGridCellEditEndingEventArgs)
+		{
+			_isCellChangingStarted = true;
+		}
+
+		private void RunBackgroundWorker()
+		{
+			Task.Run(() =>
 			{
 				var bw = new MyBackgroundWorker(this);
 
@@ -65,7 +73,6 @@ namespace WpfTestTask
 						}
 						else
 						{
-							_isReading = true;
 							var list = bw.ReadData();
 							Dispatcher.Invoke(() =>
 							{
@@ -75,30 +82,12 @@ namespace WpfTestTask
 									ViewModel.BindingList.Add(model);
 								}
 							});
-							_isReading = false;
 						}
 					}
 
 					Thread.Sleep(1000);
 				}
-			}));
-		}
-		
-		void ListChanged(object sender, ListChangedEventArgs e)
-		{
-			_isCellChangingStarted = false;
-			_isListChanged = true;
-		}
-
-		void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
-		{
-			_isCellChangingStarted = false;
-			_isListChanged = true;
-		}
-
-		void CellChangingStarted(object sender, DataGridPreparingCellForEditEventArgs dataGridCellEditEndingEventArgs)
-		{
-			_isCellChangingStarted = true;
+			});
 		}
 	}
 }
