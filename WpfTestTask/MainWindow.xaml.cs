@@ -28,9 +28,10 @@ namespace WpfTestTask
 		private readonly ViewModel _viewModel;
 
 		private bool _isListChanged;
+        private bool _isCellChangingStarted;
 
-		private bool _isCellChangingStarted;
-
+        public static bool IsGridValid { get; set; }
+		
 		public static List<string> ExpandersStates { get; set; }
 
 		public ViewModel ViewModel
@@ -51,9 +52,10 @@ namespace WpfTestTask
 			_viewModel.BindingList.RaiseListChangedEvents = true;
 			_viewModel.BindingList.ListChanged += ListChanged;
 
+            IsGridValid = true;
 			RunBackgroundWorker();
 		}
-
+		
 		private void ListChanged(object sender, ListChangedEventArgs e)
 		{
 			_isCellChangingStarted = false;
@@ -79,7 +81,7 @@ namespace WpfTestTask
 
 				while (true)
 				{
-					if (!_isCellChangingStarted)
+                   if (!_isCellChangingStarted && IsGridValid)
 					{
 						if (_isListChanged)
 						{
@@ -96,7 +98,7 @@ namespace WpfTestTask
 								{
 									ViewModel.BindingList.Add(model);
 								}
-
+								
 								ViewModel.GroupedModels.Refresh();
 							});
 						}

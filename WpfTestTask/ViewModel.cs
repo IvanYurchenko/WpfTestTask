@@ -31,8 +31,8 @@ namespace WpfTestTask
 			GroupedModels.GroupDescriptions.Add(new PropertyGroupDescription("IsCompleted"));
 		}
 
-		public BindingList<RowModel> BindingList { get; set; }
-
 		public ICollectionView GroupedModels { get; set; }
+
+		public BindingList<RowModel> BindingList { get; set; }
 	}
 }
