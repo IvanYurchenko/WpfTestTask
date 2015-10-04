@@ -5,11 +5,22 @@
         xmlns:local="clr-namespace:WpfTestTask.Enums"
         Title="MainWindow" Height="350" Width="525" Loaded="MainWindow1_Loaded">
 	<Window.Resources>
-		<ObjectDataProvider x:Key="stateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+		<ObjectDataProvider x:Key="StateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
 			<ObjectDataProvider.MethodParameters>
 				<x:Type Type="local:State"/>
 			</ObjectDataProvider.MethodParameters>
 		</ObjectDataProvider>
+		<Style x:Key="CellEditStyle" TargetType="{x:Type TextBox}">
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Style.Triggers>
+				<Trigger Property="Validation.HasError" Value="true">
+					<Setter Property="ToolTip"
+                            Value="{Binding RelativeSource={RelativeSource Self},
+                                    Path=(Validation.Errors)[0].ErrorContent}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 	</Window.Resources>
 	<Grid>
 		<DataGrid x:Name="DataGrid1"
@@ -18,6 +29,11 @@
 				  AutoGenerateColumns="False"
 				  ItemsSource="{Binding BindingList}"
 				  PreparingCellForEdit="CellChangingStarted" CellEditEnding="CellChanged">
+			<DataGrid.Resources>
+				<Style TargetType="{x:Type DataGridCell}">
+					<Setter Property="ToolTip" Value="{Binding Error}" />
+				</Style>
+			</DataGrid.Resources>
 			<DataGrid.RowStyle>
 				<Style TargetType="DataGridRow">
 					<Style.Triggers>
@@ -29,18 +45,22 @@
 			</DataGrid.RowStyle>
 			<DataGrid.Columns>
 				<DataGridTextColumn Width="40"
-				                    Binding="{Binding Id}"
-				                    Header="Id" />
+				                    Binding="{Binding Path=Id, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
+				                    Header="Id"
+									EditingElementStyle="{StaticResource CellEditStyle}"/>
 				<DataGridTextColumn Width="275"
-				                    Binding="{Binding Description}"
-				                    Header="Description" />
+				                    Binding="{Binding Path=Description, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
+				                    Header="Description"
+									EditingElementStyle="{StaticResource CellEditStyle}"/>
 				<DataGridComboBoxColumn Width="100"
-									SelectedItemBinding="{Binding State}"
-									ItemsSource="{Binding Source={StaticResource stateEnum}}"
-									Header="State"/>
+									SelectedItemBinding="{Binding Path=State}"
+									ItemsSource="{Binding Source={StaticResource StateEnum}}"
+									Header="State"
+									EditingElementStyle="{StaticResource CellEditStyle}"/>
 				<DataGridCheckBoxColumn Width="80"
-				                    Binding="{Binding IsCompleted}"
-				                    Header="Is completed" />
+				                    Binding="{Binding Path=IsCompleted}"
+				                    Header="Is completed"
+									EditingElementStyle="{StaticResource CellEditStyle}"/>
 			</DataGrid.Columns>
 		</DataGrid>
 
