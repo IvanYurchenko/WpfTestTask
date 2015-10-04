@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -15,12 +16,21 @@ namespace WpfTestTask
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+
+#if DEBUG
+		private const int RefreshPeriod = 2000;
+#else
+		private const int RefreshPeriod = 20000;
+#endif
+
+		private static readonly string StringForSufix = Guid.NewGuid().ToString();
+
 		private readonly ViewModel _viewModel;
 
 		private bool _isListChanged;
 
 		private bool _isCellChangingStarted;
-		
+
 		public ViewModel ViewModel
 		{
 			get { return _viewModel; }
@@ -31,6 +41,7 @@ namespace WpfTestTask
 			InitializeComponent();
 			_viewModel = new ViewModel();
 			DataContext = _viewModel;
+			ExpandersStates = new List<string>();
 		}
 
 		private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
@@ -40,7 +51,7 @@ namespace WpfTestTask
 
 			RunBackgroundWorker();
 		}
-		
+
 		private void ListChanged(object sender, ListChangedEventArgs e)
 		{
 			_isCellChangingStarted = false;
@@ -83,15 +94,82 @@ namespace WpfTestTask
 								{
 									ViewModel.BindingList.Add(model);
 								}
-								
+
 								ViewModel.GroupedModels.Refresh();
 							});
 						}
 					}
 
-					Thread.Sleep(1000);
+					Thread.Sleep(RefreshPeriod);
 				}
 			});
+		}
+
+		public static List<string> ExpandersStates { get; set; }
+
+		private void exp_Expanded(object sender, RoutedEventArgs e)
+		{
+			ExpandCollapseExpander(sender as Expander, e, true);
+		}
+
+		private void exp_Collapsed(object sender, RoutedEventArgs e)
+		{
+			ExpandCollapseExpander(sender as Expander, e, false);
+		}
+
+		private static void ExpandCollapseExpander(Expander exp, RoutedEventArgs e, bool doExpand)
+		{
+			CollectionViewGroup collectionViewGroup = exp.DataContext as CollectionViewGroup;
+			if (collectionViewGroup == null)
+			{
+				return;
+			}
+			string viewGroupId = FormViewGroupIdentifier(collectionViewGroup, null);
+			if (doExpand)
+			{
+				if (!ExpandersStates.Contains(viewGroupId))
+				{
+					ExpandersStates.Add(viewGroupId);
+				}
+			}
+			else
+			{
+				ExpandersStates.Remove(viewGroupId);
+			}
+
+			e.Handled = true;
+		}
+
+		public static string FormViewGroupIdentifier(CollectionViewGroup collectionViewGroup, string sufix)
+		{
+			string formViewGroupIdentifier = collectionViewGroup.Name + sufix;
+			CollectionViewGroup parentgroup = GetParent(collectionViewGroup);
+
+			if (parentgroup == null)
+			{
+				return formViewGroupIdentifier;
+			}
+			
+			return FormViewGroupIdentifier(parentgroup, StringForSufix + formViewGroupIdentifier);
+		}
+
+		private static CollectionViewGroup GetParent(CollectionViewGroup collectionViewGroup)
+		{
+			Type type = collectionViewGroup.GetType();
+
+			// if we are at the root level return null as there is no parent
+			if (type.Name == "CollectionViewGroupRoot")
+			{
+				return null;
+			}
+
+			CollectionViewGroup parentgroup = 
+				type.GetProperty("Parent", System.Reflection.BindingFlags.GetProperty |
+											System.Reflection.BindingFlags.Instance |
+											System.Reflection.BindingFlags.NonPublic)
+				.GetValue(collectionViewGroup, null) as CollectionViewGroup;
+
+			return parentgroup;
 		}
 	}
 }
