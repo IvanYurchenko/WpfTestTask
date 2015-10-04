@@ -31,6 +31,8 @@ namespace WpfTestTask
 
 		private bool _isCellChangingStarted;
 
+		public static List<string> ExpandersStates { get; set; }
+
 		public ViewModel ViewModel
 		{
 			get { return _viewModel; }
@@ -105,8 +107,6 @@ namespace WpfTestTask
 			});
 		}
 
-		public static List<string> ExpandersStates { get; set; }
-
 		private void exp_Expanded(object sender, RoutedEventArgs e)
 		{
 			ExpandCollapseExpander(sender as Expander, e, true);
@@ -120,10 +120,12 @@ namespace WpfTestTask
 		private static void ExpandCollapseExpander(Expander exp, RoutedEventArgs e, bool doExpand)
 		{
 			CollectionViewGroup collectionViewGroup = exp.DataContext as CollectionViewGroup;
+
 			if (collectionViewGroup == null)
 			{
 				return;
 			}
+
 			string viewGroupId = FormViewGroupIdentifier(collectionViewGroup, null);
 			if (doExpand)
 			{
@@ -167,7 +169,8 @@ namespace WpfTestTask
 				type.GetProperty("Parent", System.Reflection.BindingFlags.GetProperty |
 											System.Reflection.BindingFlags.Instance |
 											System.Reflection.BindingFlags.NonPublic)
-				.GetValue(collectionViewGroup, null) as CollectionViewGroup;
+				.GetValue(collectionViewGroup, null)
+				as CollectionViewGroup;
 
 			return parentgroup;
 		}

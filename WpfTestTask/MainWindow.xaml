@@ -83,15 +83,13 @@
 				                    Binding="{Binding Path=Description, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
 				                    Header="Description"
 									EditingElementStyle="{StaticResource CellEditStyle}"/>
-				<DataGridComboBoxColumn Width="*"
+				<DataGridComboBoxColumn Width="100"
 									SelectedItemBinding="{Binding Path=State}"
 									ItemsSource="{Binding Source={StaticResource StateEnum}}"
-									Header="State"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
+									Header="State"/>
 				<DataGridCheckBoxColumn Width="80"
 				                    Binding="{Binding Path=IsCompleted}"
-				                    Header="Is completed"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
+				                    Header="Is completed"/>
 			</DataGrid.Columns>
 		</DataGrid>
 
