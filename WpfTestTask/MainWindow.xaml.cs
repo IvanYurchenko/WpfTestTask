@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using WpfTestTask.Workers;
 
 namespace WpfTestTask
@@ -81,6 +83,8 @@ namespace WpfTestTask
 								{
 									ViewModel.BindingList.Add(model);
 								}
+								
+								ViewModel.GroupedModels.Refresh();
 							});
 						}
 					}

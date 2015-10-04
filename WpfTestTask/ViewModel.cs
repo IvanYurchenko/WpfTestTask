@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Windows.Data;
 using WpfTestTask.Enums;
 using WpfTestTask.Models;
 
@@ -25,8 +26,14 @@ namespace WpfTestTask
 					IsCompleted = true,
 				}
 			};
+
+			GroupedModels = new ListCollectionView(BindingList);
+			GroupedModels.GroupDescriptions.Add(new PropertyGroupDescription("IsCompleted"));
+
 		}
 
 		public BindingList<RowModel> BindingList { get; set; }
+
+		public ICollectionView GroupedModels { get; set; }
 	}
 }

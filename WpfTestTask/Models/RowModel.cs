@@ -1,16 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using WpfTestTask.Annotations;
 using WpfTestTask.Enums;
 
 namespace WpfTestTask.Models
 {
 	public class RowModel : IDataErrorInfo, INotifyPropertyChanged
 	{
-		private static readonly Regex DescriptionRegex = new Regex(@"^[A-Za-z0-9 ]+$");
+		private static readonly Regex DescriptionRegex = new Regex(@"^[^,]+$");
 
 		private int _id;
 
@@ -102,7 +99,7 @@ namespace WpfTestTask.Models
 						return "Description is required";
 
 					if (!DescriptionRegex.Match(Description).Success)
-						return "Description may only contain characters, numbers or spaces";
+						return "Description shouldn't contain comas";
 				}
 
 				return "";
