@@ -3,91 +3,90 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:core="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:WpfTestTask.Enums"
-        Title="MainWindow" Height="350" Width="536" Loaded="MainWindow1_Loaded">
-	<Window.Resources>
-		<ObjectDataProvider x:Key="StateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
-			<ObjectDataProvider.MethodParameters>
-				<x:Type Type="local:State"/>
-			</ObjectDataProvider.MethodParameters>
-		</ObjectDataProvider>
-		<Style x:Key="CellEditStyle" TargetType="{x:Type TextBox}">
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="0"/>
-			<Style.Triggers>
-				<Trigger Property="Validation.HasError" Value="true">
-					<Setter Property="ToolTip"
-                            Value="{Binding RelativeSource={RelativeSource Self},
-                                    Path=(Validation.Errors)[0].ErrorContent}"/>
-				</Trigger>
-			</Style.Triggers>
-		</Style>
-	</Window.Resources>
-	<Grid>
-		<DataGrid x:Name="DataGrid1"
-				  HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"
-				  Height="299" Width="497"
-				  AutoGenerateColumns="False"
-				  ItemsSource="{Binding GroupedModels}"
-				  PreparingCellForEdit="CellChangingStarted" CellEditEnding="CellChanged">
-			<DataGrid.Resources>
-				<Style TargetType="{x:Type DataGridCell}">
-					<Setter Property="ToolTip" Value="{Binding Error}" />
-				</Style>
-			</DataGrid.Resources>
-			<DataGrid.GroupStyle>
-				<GroupStyle>
-					<GroupStyle.ContainerStyle>
-						<Style TargetType="{x:Type GroupItem}">
-							<Setter Property="Template">
-								<Setter.Value>
-									<ControlTemplate TargetType="{x:Type GroupItem}">
-										<Expander>
-											<Expander.Header>
-												<StackPanel Orientation="Horizontal">
-													<TextBlock Text="Is completed: "/>
-													<TextBlock Text="{Binding Path=Name}" />
-													<TextBlock Text="{Binding Path=ItemCount}" Margin="8,0,4,0"/>
-													<TextBlock Text="items"/>
-												</StackPanel>
-											</Expander.Header>
-											<ItemsPresenter />
-										</Expander>
-									</ControlTemplate>
-								</Setter.Value>
-							</Setter>
-						</Style>
-					</GroupStyle.ContainerStyle>
-				</GroupStyle>
-			</DataGrid.GroupStyle>
-			<DataGrid.RowStyle>
-				<Style TargetType="DataGridRow">
-					<Style.Triggers>
-						<DataTrigger Binding="{Binding State}" Value="InProgress">
-							<Setter Property="Background" Value="LightGreen"></Setter>
-						</DataTrigger>
-					</Style.Triggers>
-				</Style>
-			</DataGrid.RowStyle>
-			<DataGrid.Columns>
-				<DataGridTextColumn Width="*"
-				                    Binding="{Binding Path=Id, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
-				                    Header="Id"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
-				<DataGridTextColumn Width="275"
-				                    Binding="{Binding Path=Description, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
-				                    Header="Description"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
-				<DataGridComboBoxColumn Width="*"
-									SelectedItemBinding="{Binding Path=State}"
-									ItemsSource="{Binding Source={StaticResource StateEnum}}"
-									Header="State"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
-				<DataGridCheckBoxColumn Width="80"
-				                    Binding="{Binding Path=IsCompleted}"
-				                    Header="Is completed"
-									EditingElementStyle="{StaticResource CellEditStyle}"/>
-			</DataGrid.Columns>
-		</DataGrid>
+        Title="MainWindow" Height="350" Width="525" Loaded="MainWindow1_Loaded">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="StateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="local:State"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
 
-	</Grid>
+        <Style x:Key="CustomTextBoxTextStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="Green" />
+            <Setter Property="MaxLength" Value="40" />
+            <Setter Property="Width" Value="200" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Trigger.Setters>
+                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self},Path=(Validation.Errors)[0].ErrorContent}"/>
+                        <Setter Property="Background" Value="Red"/>
+                    </Trigger.Setters>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="CustomTextBoxIntStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="Green" />
+            <Setter Property="MaxLength" Value="4" />
+            <Setter Property="Width" Value="40" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Trigger.Setters>
+                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self},Path=(Validation.Errors)[0].ErrorContent}"/>
+                        <Setter Property="Background" Value="Red"/>
+                    </Trigger.Setters>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <DataGrid x:Name="DataGrid1"
+				  HorizontalAlignment="Stretch" Margin="10,10,0,0" VerticalAlignment="Stretch"
+				  Height="Auto" Width="Auto"
+				  AutoGenerateColumns="False"
+				  ItemsSource="{Binding BindingList}"
+				  PreparingCellForEdit="CellChangingStarted" CellEditEnding="CellChanged">
+            <DataGrid.RowValidationErrorTemplate>
+                <ControlTemplate>
+                    <TextBlock Width="0" Text=" "></TextBlock>
+                </ControlTemplate>
+            </DataGrid.RowValidationErrorTemplate>
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="ToolTip" Value="{Binding Error}" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding State}" Value="InProgress">
+                            <Setter Property="Background" Value="LightGreen"></Setter>
+                            <Setter Property="ValidationErrorTemplate" Value="{x:Null}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="40"
+				                    Binding="{Binding Id, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
+				                    Header="Id"
+									EditingElementStyle="{StaticResource CustomTextBoxIntStyle}" />
+
+                <DataGridTextColumn Width="200"
+                                    Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"
+				                    Header="Description"
+									EditingElementStyle="{StaticResource CustomTextBoxTextStyle}" />
+
+                <DataGridComboBoxColumn Width="100"
+									SelectedItemBinding="{Binding State}"
+									ItemsSource="{Binding Source={StaticResource StateEnum}}"
+									Header="State" />
+
+                <DataGridCheckBoxColumn Width="80"
+				                    Binding="{Binding IsCompleted}"
+				                    Header="Is Completed"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
 </Window>

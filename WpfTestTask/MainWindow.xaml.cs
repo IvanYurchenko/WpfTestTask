@@ -1,97 +1,98 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using WpfTestTask.Workers;
 
 namespace WpfTestTask
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
-	{
-		private readonly ViewModel _viewModel;
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private readonly ViewModel _viewModel;
 
-		private bool _isListChanged;
+        private bool _isListChanged;
+        private bool _isCellChangingStarted;
 
-		private bool _isCellChangingStarted;
-		
-		public ViewModel ViewModel
-		{
-			get { return _viewModel; }
-		}
+        public static bool IsGridValid { get; set; }
 
-		public MainWindow()
-		{
-			InitializeComponent();
-			_viewModel = new ViewModel();
-			DataContext = _viewModel;
-		}
+        public ViewModel ViewModel
+        {
+            get { return _viewModel; }
+        }
 
-		private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
-		{
-			_viewModel.BindingList.RaiseListChangedEvents = true;
-			_viewModel.BindingList.ListChanged += ListChanged;
+        public MainWindow()
+        {
+            InitializeComponent();
+            _viewModel = new ViewModel();
+            DataContext = _viewModel;
+        }
 
-			RunBackgroundWorker();
-		}
-		
-		private void ListChanged(object sender, ListChangedEventArgs e)
-		{
-			_isCellChangingStarted = false;
-			_isListChanged = true;
-		}
+        private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.BindingList.RaiseListChangedEvents = true;
+            _viewModel.BindingList.ListChanged += ListChanged;
+            
+            IsGridValid = true;
+            RunBackgroundWorker();
+        }
 
-		private void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
-		{
-			_isCellChangingStarted = false;
-			_isListChanged = true;
-		}
+        private void ListChanged(object sender, ListChangedEventArgs e)
+        {
+            _isCellChangingStarted = false;
+            _isListChanged = true;
+        }
 
-		private void CellChangingStarted(object sender, DataGridPreparingCellForEditEventArgs dataGridCellEditEndingEventArgs)
-		{
-			_isCellChangingStarted = true;
-		}
+        private void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
+        {
+            _isCellChangingStarted = false;
+            _isListChanged = true;
+        }
 
-		private void RunBackgroundWorker()
-		{
-			Task.Run(() =>
-			{
-				var bw = new MyBackgroundWorker(this);
+        private void CellChangingStarted(object sender, DataGridPreparingCellForEditEventArgs dataGridCellEditEndingEventArgs)
+        {
+            _isCellChangingStarted = true;
+        }
 
-				while (true)
-				{
-					if (!_isCellChangingStarted)
-					{
-						if (_isListChanged)
-						{
-							_isListChanged = false;
-							bw.WriteData(ViewModel.BindingList.ToList());
-						}
-						else
-						{
-							var list = bw.ReadData();
-							Dispatcher.Invoke(() =>
-							{
-								ViewModel.BindingList.Clear();
-								foreach (var model in list)
-								{
-									ViewModel.BindingList.Add(model);
-								}
-								
-								ViewModel.GroupedModels.Refresh();
-							});
-						}
-					}
 
-					Thread.Sleep(1000);
-				}
-			});
-		}
-	}
+
+
+        private void RunBackgroundWorker()
+        {
+            Task.Run(() =>
+            {
+                var bw = new MyBackgroundWorker(this);
+
+                while (true)
+                {
+                   if (!_isCellChangingStarted && IsGridValid)
+                    {
+                        if (_isListChanged)
+                        {
+                            _isListChanged = false;
+                            bw.WriteData(ViewModel.BindingList.ToList());
+                        }
+                        else
+                        {
+                            var list = bw.ReadData();
+                            Dispatcher.Invoke(() =>
+                            {
+                                ViewModel.BindingList.Clear();
+                                foreach (var model in list)
+                                {
+                                    ViewModel.BindingList.Add(model);
+                                }
+                            });
+                        }
+                    }
+                    Thread.Sleep(1000);
+                }
+
+            });
+        }
+    }
 }

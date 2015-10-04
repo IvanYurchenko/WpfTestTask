@@ -1,124 +1,129 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
 using WpfTestTask.Enums;
 
 namespace WpfTestTask.Models
 {
-	public class RowModel : IDataErrorInfo, INotifyPropertyChanged
-	{
-		private static readonly Regex DescriptionRegex = new Regex(@"^[^,]+$");
+    public class RowModel : INotifyPropertyChanged, IDataErrorInfo
+    {
+        private static readonly Regex DescriptionRegex = new Regex(@"^[A-Za-z0-9 ]+$");
 
-		private int _id;
+        private int _id;
+        private string _description;
+        private State _state;
+        private bool _isCompleted;
 
-		private string _description;
+        public int Id
+        {
+            get
+            {
+                return _id;
+            }
+            set
+            {
+                _id = value;
+                NotifyPropertyChanged("Id");
+                NotifyPropertyChanged("Error");
+            }
+        }
 
-		private State _state;
+        public string Description
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_description) ? string.Empty : _description;
+            }
+            set
+            {
+                _description = value;
+                NotifyPropertyChanged("Description");
+                NotifyPropertyChanged("Error");
+            }
+        }
 
-		private bool _isCompleted;
+        public State State
+        {
+            get
+            {
+                return _state;
+            }
+            set
+            {
+                _state = value;
+                NotifyPropertyChanged("Error");
+            }
+        }
 
-		public int Id
-		{
-			get
-			{
-				return _id;
-			}
-			set
-			{
-				_id = value;
-				NotifyErrorChanged();
-			}
-		}
+        public bool IsCompleted
+        {
+            get
+            {
+                return _isCompleted;
+            }
+            set
+            {
+                _isCompleted = value;
+                NotifyPropertyChanged("Error");
+            }
+        }
 
-		public string Description
-		{
-			get
-			{
-				return _description;
-			}
-			set
-			{
-				_description = value;
-				NotifyErrorChanged();
-			}
-		}
+        public string this[string columnName]
+        {
+            get
+            {
+                string errorMessage = null;
+                switch (columnName)
+                {
+                    case "Description":
+                        if (string.IsNullOrEmpty(Description))
+                        {
+                            errorMessage = "Description is required";
+                        }
+                        else if (!DescriptionRegex.Match(Description).Success)
+                        {
+                            errorMessage = "Description may only contain characters, numbers or spaces";
+                        }
 
-		public State State
-		{
-			get
-			{
-				return _state;
-			}
-			set
-			{
-				_state = value;
-				NotifyErrorChanged();
-			}
-		}
+                        break;
 
-		public bool IsCompleted
-		{
-			get
-			{
-				return _isCompleted;
-			}
-			set
-			{
-				_isCompleted = value;
-				NotifyErrorChanged();
-			}
-		}
+                }
 
-		public string Error
-		{
-			get
-			{
-				StringBuilder sb = new StringBuilder();
+                return errorMessage;
+            }
+        }
 
-				PropertyDescriptorCollection props = TypeDescriptor.GetProperties(this);
-				foreach (PropertyDescriptor prop in props)
-				{
-					string propertyError = this[prop.Name];
-					if (!string.IsNullOrEmpty(propertyError))
-					{
-						sb.Append((sb.Length != 0 ? ", " : "") + propertyError);
-					}
-				}
+        public string Error
+        {
+            get
+            {
+                var sb = new StringBuilder();
 
-				return sb.Length == 0 ? null : sb.ToString();
-			}
-		}
+                PropertyDescriptorCollection props = TypeDescriptor.GetProperties(this);
+                foreach (PropertyDescriptor prop in props)
+                {
+                    string propertyError = this[prop.Name];
+                    if (!string.IsNullOrEmpty(propertyError))
+                    {
+                        sb.Append((sb.Length != 0 ? ", " : "") + propertyError);
+                    }
+                }
 
-		public string this[string columnName]
-		{
-			get
-			{
-				if (columnName == "Description")
-				{
-					if (string.IsNullOrEmpty(Description.Trim()))
-						return "Description is required";
+                string result = sb.Length == 0 ? null : sb.ToString();
+                MainWindow.IsGridValid = string.IsNullOrEmpty(result);
+                return result;
+            }
+        }
 
-					if (!DescriptionRegex.Match(Description).Success)
-						return "Description shouldn't contain comas";
-				}
+        public event PropertyChangedEventHandler PropertyChanged;
 
-				return "";
-			}
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private void NotifyPropertyChanged(string property)
-		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs(property));
-			}
-		}
-
-		private void NotifyErrorChanged()
-		{
-			NotifyPropertyChanged("Error");
-		}
-	}
+        private void NotifyPropertyChanged(string property)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
+        }
+    }
 }
