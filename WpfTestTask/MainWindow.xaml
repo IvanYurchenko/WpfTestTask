@@ -2,28 +2,31 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:core="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:WpfTestTask.Enums"
-        Title="MainWindow" Height="350" Width="525" Loaded="MainWindow1_Loaded">
-    <Window.Resources>
-        <ObjectDataProvider x:Key="StateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type Type="local:State"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
+        xmlns:enums="clr-namespace:WpfTestTask.Enums"
+        xmlns:converters="clr-namespace:WpfTestTask.Converters"
+        Title="MainWindow" Height="350" Width="536" Loaded="MainWindow1_Loaded">
+	<Window.Resources>
+		<converters:ExpanderIsExpandableConverter x:Key="ExpanderIsExpandableConverter" />
+		<converters:ExpanderStateConverter x:Key="ExpanderStateConverter" />
+		<ObjectDataProvider x:Key="StateEnum" MethodName="GetValues" ObjectType="{x:Type core:Enum}">
+			<ObjectDataProvider.MethodParameters>
+				<x:Type Type="enums:State"/>
+			</ObjectDataProvider.MethodParameters>
+		</ObjectDataProvider>
 
         <Style x:Key="CustomTextBoxTextStyle" TargetType="TextBox">
             <Setter Property="Foreground" Value="Green" />
             <Setter Property="MaxLength" Value="40" />
             <Setter Property="Width" Value="200" />
-            <Style.Triggers>
+			<Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
                     <Trigger.Setters>
                         <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self},Path=(Validation.Errors)[0].ErrorContent}"/>
                         <Setter Property="Background" Value="Red"/>
                     </Trigger.Setters>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
         <Style x:Key="CustomTextBoxIntStyle" TargetType="TextBox">
             <Setter Property="Foreground" Value="Green" />
             <Setter Property="MaxLength" Value="4" />
@@ -37,36 +40,64 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-    </Window.Resources>
+	</Window.Resources>
 
-    <Grid>
-        <DataGrid x:Name="DataGrid1"
+	<Grid>
+		<DataGrid x:Name="DataGrid1"
 				  HorizontalAlignment="Stretch" Margin="10,10,0,0" VerticalAlignment="Stretch"
 				  Height="Auto" Width="Auto"
 				  AutoGenerateColumns="False"
-				  ItemsSource="{Binding BindingList}"
+				  ItemsSource="{Binding GroupedModels}"
 				  PreparingCellForEdit="CellChangingStarted" CellEditEnding="CellChanged">
             <DataGrid.RowValidationErrorTemplate>
                 <ControlTemplate>
                     <TextBlock Width="0" Text=" "></TextBlock>
                 </ControlTemplate>
             </DataGrid.RowValidationErrorTemplate>
-            <DataGrid.Resources>
-                <Style TargetType="{x:Type DataGridCell}">
-                    <Setter Property="ToolTip" Value="{Binding Error}" />
-                </Style>
-            </DataGrid.Resources>
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding State}" Value="InProgress">
-                            <Setter Property="Background" Value="LightGreen"></Setter>
+			<DataGrid.Resources>
+				<Style TargetType="{x:Type DataGridCell}">
+					<Setter Property="ToolTip" Value="{Binding Error}" />
+				</Style>
+			</DataGrid.Resources>
+			<DataGrid.GroupStyle>
+				<GroupStyle>
+					<GroupStyle.ContainerStyle>
+						<Style TargetType="{x:Type GroupItem}">
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="{x:Type GroupItem}">
+										<Expander Name="exp" Expanded="exp_Expanded" Collapsed="exp_Collapsed" >
+											<Expander.IsExpanded>
+												<Binding Converter="{StaticResource ResourceKey=ExpanderStateConverter}" Mode="OneWay" />
+											</Expander.IsExpanded>
+											<Expander.Header>
+												<StackPanel Orientation="Horizontal">
+													<TextBlock Text="Is completed: "/>
+													<TextBlock Text="{Binding Path=Name}" />
+													<TextBlock Text="{Binding Path=ItemCount}" Margin="8,0,4,0"/>
+													<TextBlock Text="items"/>
+												</StackPanel>
+											</Expander.Header>
+											<ItemsPresenter IsEnabled="True"/>
+										</Expander>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+						</Style>
+					</GroupStyle.ContainerStyle>
+				</GroupStyle>
+			</DataGrid.GroupStyle>
+			<DataGrid.RowStyle>
+				<Style TargetType="DataGridRow">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding State}" Value="InProgress">
+							<Setter Property="Background" Value="LightGreen"></Setter>
                             <Setter Property="ValidationErrorTemplate" Value="{x:Null}"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
-            <DataGrid.Columns>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</DataGrid.RowStyle>
+			<DataGrid.Columns>
                 <DataGridTextColumn Width="40"
 				                    Binding="{Binding Id, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}"
 				                    Header="Id"
@@ -82,11 +113,11 @@
 									ItemsSource="{Binding Source={StaticResource StateEnum}}"
 									Header="State" />
 
-                <DataGridCheckBoxColumn Width="80"
+				<DataGridCheckBoxColumn Width="80"
 				                    Binding="{Binding IsCompleted}"
 				                    Header="Is Completed"/>
-            </DataGrid.Columns>
-        </DataGrid>
+			</DataGrid.Columns>
+		</DataGrid>
 
-    </Grid>
+	</Grid>
 </Window>

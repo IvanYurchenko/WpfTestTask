@@ -53,6 +53,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ExpanderIsExpandableConverter.cs" />
+    <Compile Include="Converters\ExpanderStateConverter.cs" />
     <Compile Include="Models\RowModel.cs" />
     <Compile Include="Enums\State.cs" />
     <Compile Include="Properties\Annotations.cs" />
