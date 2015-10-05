@@ -27,6 +27,8 @@ namespace WpfTestTask
 
 		private readonly ViewModel _viewModel;
 
+		private readonly object _objForLock;
+
 		private bool _isListChanged;
 
 		private bool _isCellChangingStarted;
@@ -46,31 +48,42 @@ namespace WpfTestTask
 			_viewModel = new ViewModel();
 			DataContext = _viewModel;
 			ExpandersStates = new List<string>();
+			_objForLock = new object();
 		}
 
 		private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
 		{
 			ViewModel.BindingList.RaiseListChangedEvents = true;
 			ViewModel.BindingList.ListChanged += ListChanged;
-
+			
 			IsGridValid = true;
+
 			RunBackgroundWorker();
 		}
 
 		private void ListChanged(object sender, ListChangedEventArgs e)
 		{
-			_isListChanged = true;
+			lock (_objForLock)
+			{
+				_isListChanged = true;
+			}
 		}
 
 		private void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
 		{
-			_isCellChangingStarted = false;
-			_isListChanged = true;
+			lock (_objForLock)
+			{
+				_isCellChangingStarted = false;
+				_isListChanged = true;
+			}
 		}
 
 		private void CellChangingStarted(object sender, DataGridPreparingCellForEditEventArgs dataGridCellEditEndingEventArgs)
 		{
-			_isCellChangingStarted = true;
+			lock (_objForLock)
+			{
+				_isCellChangingStarted = true;
+			}
 		}
 
 		private void RunBackgroundWorker()
@@ -85,7 +98,11 @@ namespace WpfTestTask
 					{
 						if (_isListChanged)
 						{
-							_isListChanged = false;
+							lock (_objForLock)
+							{
+								_isListChanged = false;
+							}
+
 							bw.WriteData(ViewModel.BindingList.ToList());
 						}
 						else
