@@ -15,12 +15,12 @@ namespace WpfTestTask.Converters
 
 			if (expandersStates == null || !expandersStates.Any())
 			{
-				return false;
+				return true;
 			}
 
 			string groupId = MainWindow.FormViewGroupIdentifier(collectionViewGroup, null);
-			bool contains = expandersStates.Contains(groupId);
-			return contains;
+			bool expanded = !expandersStates.Contains(groupId);
+			return expanded;
 		}
 
 		public object ConvertBack(object value, Type targetTypes, object parameter, CultureInfo culture)

@@ -18,7 +18,7 @@ namespace WpfTestTask
 	{
 
 #if DEBUG
-		private const int RefreshPeriod = 6000;
+		private const int RefreshPeriod = 3000;
 #else
 		private const int RefreshPeriod = 20000;
 #endif
@@ -128,15 +128,15 @@ namespace WpfTestTask
 
 		private void exp_Expanded(object sender, RoutedEventArgs e)
 		{
-			ExpandCollapseExpander(sender as Expander, e, true);
+			ExpandCollapseExpander(sender as Expander, e, false);
 		}
 
 		private void exp_Collapsed(object sender, RoutedEventArgs e)
 		{
-			ExpandCollapseExpander(sender as Expander, e, false);
+			ExpandCollapseExpander(sender as Expander, e, true);
 		}
 
-		private static void ExpandCollapseExpander(Expander exp, RoutedEventArgs e, bool doExpand)
+		private static void ExpandCollapseExpander(Expander exp, RoutedEventArgs e, bool doCollapse)
 		{
 			CollectionViewGroup collectionViewGroup = exp.DataContext as CollectionViewGroup;
 
@@ -146,7 +146,7 @@ namespace WpfTestTask
 			}
 
 			string viewGroupId = FormViewGroupIdentifier(collectionViewGroup, null);
-			if (doExpand)
+			if (doCollapse)
 			{
 				if (!ExpandersStates.Contains(viewGroupId))
 				{
