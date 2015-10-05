@@ -4,7 +4,7 @@
         xmlns:core="clr-namespace:System;assembly=mscorlib"
         xmlns:enums="clr-namespace:WpfTestTask.Enums"
         xmlns:converters="clr-namespace:WpfTestTask.Converters"
-        Title="MainWindow" Height="350" Width="536" Loaded="MainWindow1_Loaded">
+        Title="MainWindow" Height="350" Width="466.202" Loaded="MainWindow1_Loaded" ResizeMode="NoResize">
 	<Window.Resources>
 		<converters:ExpanderIsExpandableConverter x:Key="ExpanderIsExpandableConverter" />
 		<converters:ExpanderStateConverter x:Key="ExpanderStateConverter" />
@@ -44,7 +44,7 @@
 
 	<Grid>
 		<DataGrid x:Name="DataGrid1"
-				  HorizontalAlignment="Stretch" Margin="10,10,0,0" VerticalAlignment="Stretch"
+				  HorizontalAlignment="Stretch" Margin="10,10,10,0" VerticalAlignment="Stretch"
 				  Height="Auto" Width="Auto"
 				  AutoGenerateColumns="False"
 				  ItemsSource="{Binding GroupedModels}"
