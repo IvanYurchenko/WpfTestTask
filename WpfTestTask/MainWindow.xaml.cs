@@ -18,7 +18,7 @@ namespace WpfTestTask
 	{
 
 #if DEBUG
-		private const int RefreshPeriod = 2000;
+		private const int RefreshPeriod = 6000;
 #else
 		private const int RefreshPeriod = 20000;
 #endif
@@ -28,10 +28,11 @@ namespace WpfTestTask
 		private readonly ViewModel _viewModel;
 
 		private bool _isListChanged;
-        private bool _isCellChangingStarted;
 
-        public static bool IsGridValid { get; set; }
-		
+		private bool _isCellChangingStarted;
+
+		public static bool IsGridValid { get; set; }
+
 		public static List<string> ExpandersStates { get; set; }
 
 		public ViewModel ViewModel
@@ -49,16 +50,15 @@ namespace WpfTestTask
 
 		private void MainWindow1_Loaded(object sender, RoutedEventArgs e)
 		{
-			_viewModel.BindingList.RaiseListChangedEvents = true;
-			_viewModel.BindingList.ListChanged += ListChanged;
+			ViewModel.BindingList.RaiseListChangedEvents = true;
+			ViewModel.BindingList.ListChanged += ListChanged;
 
-            IsGridValid = true;
+			IsGridValid = true;
 			RunBackgroundWorker();
 		}
-		
+
 		private void ListChanged(object sender, ListChangedEventArgs e)
 		{
-			_isCellChangingStarted = false;
 			_isListChanged = true;
 		}
 
@@ -81,7 +81,7 @@ namespace WpfTestTask
 
 				while (true)
 				{
-                   if (!_isCellChangingStarted && IsGridValid)
+					if (!_isCellChangingStarted && IsGridValid)
 					{
 						if (_isListChanged)
 						{
@@ -98,7 +98,7 @@ namespace WpfTestTask
 								{
 									ViewModel.BindingList.Add(model);
 								}
-								
+
 								ViewModel.GroupedModels.Refresh();
 							});
 						}
@@ -153,7 +153,7 @@ namespace WpfTestTask
 			{
 				return formViewGroupIdentifier;
 			}
-			
+
 			return FormViewGroupIdentifier(parentgroup, StringForSufix + formViewGroupIdentifier);
 		}
 
@@ -167,7 +167,7 @@ namespace WpfTestTask
 				return null;
 			}
 
-			CollectionViewGroup parentgroup = 
+			CollectionViewGroup parentgroup =
 				type.GetProperty("Parent", System.Reflection.BindingFlags.GetProperty |
 											System.Reflection.BindingFlags.Instance |
 											System.Reflection.BindingFlags.NonPublic)
