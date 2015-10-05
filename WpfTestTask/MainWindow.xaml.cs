@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using WpfTestTask.Enums;
+using WpfTestTask.Models;
 using WpfTestTask.Workers;
 
 namespace WpfTestTask
@@ -69,8 +71,26 @@ namespace WpfTestTask
 			}
 		}
 
-		private void CellChanged(object sender, DataGridCellEditEndingEventArgs dataGridCellEditEndingEventArgs)
+		private void CellChanged(object sender, DataGridCellEditEndingEventArgs e)
 		{
+			ComboBox comboBox = e.EditingElement as ComboBox;
+			
+			if (comboBox != null)
+			{
+				var setToCompleted = string.Equals(comboBox.Text,
+					State.Completed.ToString(),
+					StringComparison.InvariantCultureIgnoreCase);
+				
+				if (setToCompleted)
+				{
+					var item = e.Row.Item as RowModel;
+					if (item != null)
+					{
+						item.IsCompleted = true;
+					}
+				}
+			}
+
 			lock (_objForLock)
 			{
 				_isCellChangingStarted = false;
